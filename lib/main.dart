@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:tte/Page/home_page.dart';
+import 'package:tte/Page/login_page.dart';
 
 
 import 'mqtt_app_state.dart' as mqttState;
@@ -22,12 +23,12 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => mqttState.MQTTAppState(),
       child: MaterialApp(
-        title: 'TTE Control',
+        title: 'TTE-SAFE',
         theme: ThemeData(
           primarySwatch: Colors.blue,
           useMaterial3: true,
         ),
-        home: const MyHomePage(),
+        home: const LoginPage(),
       ),
     );
   }

@@ -81,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _showSnackbar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(message, style: const TextStyle(color: Colors.black)),
         backgroundColor: color,
         duration: const Duration(seconds: 2),
       ),

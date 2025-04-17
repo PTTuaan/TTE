@@ -13,7 +13,7 @@ class MQTTAppState extends ChangeNotifier {
   bool _deviceState = false;
   bool _allowAutoUpdate = false;
   Map<String, dynamic>? _latestStatusMessage; // Action 7
-  Map<String, dynamic>? _latestFunctionMessage; // Action 12
+  Map<String, dynamic>? _latestFunctionMessage; // Action 5
   Map<String, dynamic>? _latestSettingsMessage; // Action 5
   String? _lastCommandId;
   DateTime? _lastCommandTime;
@@ -85,7 +85,7 @@ class MQTTAppState extends ChangeNotifier {
     _reconnectAttempts = 0;
     print('✅ Đã kết nối đến MQTT');
     publishMessage(7, MQTTConfig.DeviceId, MQTTConfig.devicePassword);
-    publishMessage(5, MQTTConfig.DeviceId, MQTTConfig.devicePassword);
+   
     Future.delayed(const Duration(milliseconds: 1000), () {
       if ( isConnected) {
         publishMessage(5, MQTTConfig.DeviceId, MQTTConfig.devicePassword);
@@ -235,6 +235,36 @@ class MQTTAppState extends ChangeNotifier {
       notifyListeners();
     }
   }
+  // Thêm vào class MQTTAppState
+void publishMessageCustom(Map<String, dynamic> payload) {
+  if (!_isConnected || _client == null) {
+    print('⚠️ Không thể gửi lệnh: Chưa kết nối hoặc client không tồn tại');
+    _connectionState = 'Không thể gửi lệnh: Chưa kết nối';
+    notifyListeners();
+    return;
+  }
+
+  final builder = MqttClientPayloadBuilder();
+  final jsonString = jsonEncode(payload);
+  builder.addString(jsonString);
+
+  print('📤 Đang gửi payload tùy chỉnh...');
+  try {
+    _client!.publishMessage(
+      MQTTConfig.publishTopic,
+      MqttQos.atMostOnce,
+      builder.payload!,
+      retain: false,
+    );
+    _lastCommandId = payload["id"] as String;
+    _lastCommandTime = DateTime.now();
+    print('📤 Gửi đi: ${_formatJson(jsonString)}');
+  } catch (e) {
+    print('❌ Lỗi gửi lệnh: $e');
+    _connectionState = 'Lỗi gửi lệnh: $e';
+    notifyListeners();
+  }
+}
 
   bool? getDeviceStateFromMessage() {
     if (_receivedMessage == null) return null;
